@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 指令庫 · 私人</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --green:      #1A3A2A;
+            --green-rim:  #2d5c3e;
+            --cream:      #e8dfc8;
+            --bg:         #F7F5F0;
+            --sidebar-bg: #F0EDE5;
+            --card-bg:    #FFFFFF;
+            --border:     #D9D0BF;
+            --text:       #1C1412;
+            --muted:      #8A7A6A;
+            --subtle:     #A89880;
+        }
+
+        html, body { height: 100%; }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .topbar {
+            flex-shrink: 0;
+            background: var(--green);
+            padding: 11px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--green-rim);
+        }
+        .topbar-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            letter-spacing: 2px;
+            color: var(--cream);
+            font-weight: 400;
+        }
+        .topbar-sub {
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: #7aaa8a;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        .topbar-count {
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: #7aaa8a;
+        }
+
+        .layout { display: flex; flex: 1; overflow: hidden; }
+
+        .sidebar {
+            width: 210px;
+            flex-shrink: 0;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 24px 14px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar-label {
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: var(--subtle);
+            text-transform: uppercase;
+            padding: 0 10px;
+            margin-bottom: 8px;
+        }
+        .sidebar-search {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border);
+            padding: 7px 10px;
+            font-size: 12px;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 300;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 8px;
+        }
+        .sidebar-search:focus { border-bottom-color: var(--green); }
+        .sidebar-search::placeholder { color: #C5B99A; }
+
+        .cat-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: none;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 300;
+            color: #6B5D4F;
+            cursor: pointer;
+            border-radius: 2px;
+            letter-spacing: 0.3px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .cat-btn:hover { background: #E5E0D5; color: var(--text); }
+        .cat-btn.active { background: var(--green); color: var(--cream); font-weight: 500; }
+
+        .sidebar-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 16px 0 12px;
+            margin-top: auto;
+        }
+        .sidebar-count {
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: var(--subtle);
+            padding: 0 10px;
+        }
+
+        .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+
+        .main-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .main-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 400;
+        }
+        .main-header-sub {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--subtle);
+            text-transform: uppercase;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-top-width: 3px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: box-shadow 0.2s;
+        }
+        .card:hover { box-shadow: 0 4px 18px rgba(26,58,42,0.09); }
+
+        .card-top { display: flex; align-items: center; justify-content: space-between; }
+
+        .card-cat {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        .private-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #B8860B;
+            flex-shrink: 0;
+        }
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+        .card-scene {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.65;
+            font-weight: 300;
+            flex: 1;
+        }
+        .copy-btn {
+            margin-top: 8px;
+            width: 100%;
+            padding: 9px;
+            background: transparent;
+            border: 1px solid;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 400;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .state-msg {
+            grid-column: 1 / -1;
+            padding: 56px 0;
+            text-align: center;
+            font-size: 12px;
+            color: var(--subtle);
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+
+        .footer {
+            flex-shrink: 0;
+            padding: 10px 32px;
+            border-top: 1px solid var(--border);
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: var(--subtle);
+            display: flex;
+            justify-content: space-between;
+            background: var(--bg);
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div>
+        <div class="topbar-title">AI 指令庫</div>
+        <div class="topbar-sub">Private Prompt Collection</div>
+    </div>
+    <div class="topbar-count" id="topCount">—</div>
+</div>
+
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-label">搜尋</div>
+        <input class="sidebar-search" id="searchInput" placeholder="關鍵字…" autocomplete="off">
+        <div class="sidebar-label" style="margin-top:20px;">分類</div>
+        <div id="catButtons"></div>
+        <hr class="sidebar-divider">
+        <div class="sidebar-count" id="sideCount">—</div>
+    </aside>
+
+    <main class="main">
+        <div class="main-header">
+            <h1 id="mainTitle">全部指令</h1>
+            <span class="main-header-sub" id="mainSub">All Prompts</span>
+        </div>
+        <div class="grid" id="grid"></div>
+    </main>
+</div>
+
+<div class="footer">
+    <span>AI 指令庫 · 私人版本</span>
+    <span>資料來源：Google 試算表</span>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  設定區 — 只需改這一行，貼入 Google 試算表 TSV 發布網址
+// ═══════════════════════════════════════════════════════
+const SHEET_TSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTRPI_Whuvl8KztR5IkhetUH8VoKFgxNG5p31djccmaDFnmej7-yipQFJcvSTJMFY89rRiktRY25yil/pub?output=tsv';
+// ═══════════════════════════════════════════════════════
+
+const SHOW_PRIVATE = true; // 私人版顯示全部，包含私人筆記
+
+const PALETTE = ['#1A3A2A','#7A5C2E','#4A5568','#6B3A3A','#3A4A5A','#5A3A6A'];
+const catColors = {};
+let allPrompts = [];
+let currentCat = 'all';
+let searchQ = '';
+
+function getColor(cat) {
+    if (!catColors[cat]) {
+        catColors[cat] = PALETTE[Object.keys(catColors).length % PALETTE.length];
+    }
+    return catColors[cat];
+}
+
+function parseTSV(raw) {
+    const lines = raw.trim().split('\n');
+    if (lines.length < 2) return [];
+    return lines.slice(1).map(line => {
+        const c = line.split('\t');
+        return {
+            title:    (c[0] || '').trim(),
+            category: (c[1] || '').trim(),
+            scene:    (c[2] || '').trim(),
+            content:  (c[3] || '').trim(),
+            isPublic: (c[4] || '').trim().toUpperCase() === 'Y',
+        };
+    }).filter(p => p.title);
+}
+
+function getFiltered() {
+    return allPrompts.filter(p => {
+        if (!SHOW_PRIVATE && !p.isPublic) return false;
+        if (currentCat !== 'all' && p.category !== currentCat) return false;
+        if (searchQ) {
+            const q = searchQ.toLowerCase();
+            return p.title.toLowerCase().includes(q) || p.scene.toLowerCase().includes(q);
+        }
+        return true;
+    });
+}
+
+function setStateMsg(text) {
+    const grid = document.getElementById('grid');
+    grid.textContent = '';
+    const msg = document.createElement('div');
+    msg.className = 'state-msg';
+    msg.textContent = text;
+    grid.appendChild(msg);
+}
+
+function createCatBtn(label, value) {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (value === 'all' ? ' active' : '');
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCat = value;
+        document.getElementById('mainTitle').textContent = value === 'all' ? '全部指令' : label;
+        document.getElementById('mainSub').textContent  = value === 'all' ? 'All Prompts' : label;
+        render();
+    });
+    return btn;
+}
+
+function renderCats() {
+    const visible = SHOW_PRIVATE ? allPrompts : allPrompts.filter(p => p.isPublic);
+    const cats = [...new Set(visible.map(p => p.category).filter(Boolean))];
+    cats.forEach(c => getColor(c));
+
+    const container = document.getElementById('catButtons');
+    container.textContent = '';
+    container.appendChild(createCatBtn('全部', 'all'));
+    cats.forEach(cat => container.appendChild(createCatBtn(cat, cat)));
+}
+
+function createCard(p, allIdx) {
+    const color = getColor(p.category);
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.borderTopColor = color;
+
+    const top = document.createElement('div');
+    top.className = 'card-top';
+
+    const catEl = document.createElement('div');
+    catEl.className = 'card-cat';
+    catEl.style.color = color;
+    catEl.textContent = p.category;
+    top.appendChild(catEl);
+
+    if (SHOW_PRIVATE && !p.isPublic) {
+        const dot = document.createElement('div');
+        dot.className = 'private-dot';
+        dot.title = '私人';
+        top.appendChild(dot);
+    }
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'card-title';
+    titleEl.textContent = p.title;
+
+    const sceneEl = document.createElement('div');
+    sceneEl.className = 'card-scene';
+    sceneEl.textContent = p.scene;
+
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '複製指令';
+    btn.style.color = color;
+    btn.style.borderColor = color;
+
+    btn.addEventListener('mouseenter', () => {
+        if (!btn.classList.contains('copied')) {
+            btn.style.background = color;
+            btn.style.color = '#e8dfc8';
+        }
+    });
+    btn.addEventListener('mouseleave', () => {
+        if (!btn.classList.contains('copied')) {
+            btn.style.background = 'transparent';
+            btn.style.color = color;
+        }
+    });
+    btn.addEventListener('click', () => {
+        const content = allPrompts[allIdx]?.content || '';
+        const markCopied = () => {
+            btn.textContent = '已複製 ✓';
+            btn.classList.add('copied');
+            btn.style.background = color;
+            btn.style.color = '#e8dfc8';
+            setTimeout(() => {
+                btn.textContent = '複製指令';
+                btn.classList.remove('copied');
+                btn.style.background = 'transparent';
+                btn.style.color = color;
+            }, 2000);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(content).then(markCopied).catch(fallbackCopy);
+        } else {
+            fallbackCopy();
+        }
+        function fallbackCopy() {
+            const el = document.createElement('textarea');
+            el.value = content;
+            el.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            markCopied();
+        }
+    });
+
+    card.appendChild(top);
+    card.appendChild(titleEl);
+    card.appendChild(sceneEl);
+    card.appendChild(btn);
+    return card;
+}
+
+function render() {
+    const items = getFiltered();
+    const total = allPrompts.filter(p => SHOW_PRIVATE || p.isPublic).length;
+    document.getElementById('topCount').textContent = items.length + ' 則';
+    document.getElementById('sideCount').textContent = '顯示 ' + items.length + ' / ' + total + ' 則';
+
+    const grid = document.getElementById('grid');
+    grid.textContent = '';
+
+    if (!items.length) {
+        setStateMsg('找不到符合條件的指令');
+        return;
+    }
+
+    const frag = document.createDocumentFragment();
+    items.forEach(p => {
+        frag.appendChild(createCard(p, allPrompts.indexOf(p)));
+    });
+    grid.appendChild(frag);
+}
+
+document.getElementById('searchInput').addEventListener('input', e => {
+    searchQ = e.target.value.trim();
+    render();
+});
+
+async function init() {
+    setStateMsg('資料載入中，請稍候…');
+    try {
+        const res = await fetch(SHEET_TSV_URL);
+        if (!res.ok) throw new Error('fetch failed');
+        const text = await res.text();
+        allPrompts = parseTSV(text);
+        renderCats();
+        render();
+    } catch (_) {
+        setStateMsg('資料載入失敗。請確認 Google 試算表已正確發布，再重新整理頁面。');
+        document.getElementById('topCount').textContent = '—';
+    }
+}
+
+init();
+</script>
+</body>
+</html>
