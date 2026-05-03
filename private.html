@@ -164,11 +164,11 @@
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-top-width: 3px;
-            padding: 20px;
+            border-top-width: 2px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             transition: box-shadow 0.2s;
         }
         .card:hover { box-shadow: 0 4px 18px rgba(26,58,42,0.09); }
@@ -176,8 +176,8 @@
         .card-top { display: flex; align-items: center; justify-content: space-between; }
 
         .card-cat {
-            font-size: 9px;
-            letter-spacing: 2px;
+            font-size: 8px;
+            letter-spacing: 3px;
             text-transform: uppercase;
             font-weight: 500;
         }
@@ -190,30 +190,34 @@
         }
         .card-title {
             font-family: 'Playfair Display', serif;
-            font-size: 16px;
+            font-size: 22px;
             font-weight: 400;
-            line-height: 1.4;
+            line-height: 1.3;
+            letter-spacing: -0.2px;
         }
         .card-scene {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--muted);
-            line-height: 1.65;
+            line-height: 1.7;
             font-weight: 300;
             flex: 1;
         }
         .copy-btn {
-            margin-top: 8px;
+            margin-top: 6px;
             width: 100%;
-            padding: 9px;
+            padding: 11px;
             background: transparent;
             border: 1px solid;
-            font-size: 10px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
             cursor: pointer;
             font-family: 'Noto Sans TC', sans-serif;
             font-weight: 400;
             transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
         }
 
         .state-msg {
@@ -269,8 +273,7 @@
 </div>
 
 <div class="footer">
-    <span>AI 指令庫 · 私人版本</span>
-    <span>資料來源：Google 試算表</span>
+    <span>AI 指令庫</span>
 </div>
 
 <script>
@@ -390,34 +393,59 @@ function createCard(p, allIdx) {
 
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
-    btn.textContent = '複製指令';
     btn.style.color = color;
     btn.style.borderColor = color;
 
+    function makeCopyIcon(svgColor) {
+        const ns = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('width', '13'); svg.setAttribute('height', '13');
+        svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', svgColor); svg.setAttribute('stroke-width', '1.8');
+        svg.setAttribute('stroke-linecap', 'round'); svg.setAttribute('stroke-linejoin', 'round');
+        const clip = document.createElementNS(ns, 'rect');
+        clip.setAttribute('x','9'); clip.setAttribute('y','2');
+        clip.setAttribute('width','6'); clip.setAttribute('height','4'); clip.setAttribute('rx','1');
+        const body = document.createElementNS(ns, 'path');
+        body.setAttribute('d','M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2');
+        svg.appendChild(clip); svg.appendChild(body);
+        return svg;
+    }
+
+    function setBtnState(copied) {
+        btn.textContent = '';
+        btn.appendChild(makeCopyIcon(copied ? '#e8dfc8' : color));
+        const lbl = document.createElement('span');
+        lbl.textContent = copied ? '已複製' : '複製指令';
+        btn.appendChild(lbl);
+        btn.style.background = copied ? color : 'transparent';
+        btn.style.color = copied ? '#e8dfc8' : color;
+        btn.style.borderColor = color;
+    }
+    setBtnState(false);
+
     btn.addEventListener('mouseenter', () => {
         if (!btn.classList.contains('copied')) {
+            btn.textContent = '';
+            btn.appendChild(makeCopyIcon('#e8dfc8'));
+            const lbl = document.createElement('span');
+            lbl.textContent = '複製指令';
+            btn.appendChild(lbl);
             btn.style.background = color;
             btn.style.color = '#e8dfc8';
         }
     });
     btn.addEventListener('mouseleave', () => {
-        if (!btn.classList.contains('copied')) {
-            btn.style.background = 'transparent';
-            btn.style.color = color;
-        }
+        if (!btn.classList.contains('copied')) setBtnState(false);
     });
     btn.addEventListener('click', () => {
         const content = allPrompts[allIdx]?.content || '';
         const markCopied = () => {
-            btn.textContent = '已複製 ✓';
             btn.classList.add('copied');
-            btn.style.background = color;
-            btn.style.color = '#e8dfc8';
+            setBtnState(true);
             setTimeout(() => {
-                btn.textContent = '複製指令';
                 btn.classList.remove('copied');
-                btn.style.background = 'transparent';
-                btn.style.color = color;
+                setBtnState(false);
             }, 2000);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) {
