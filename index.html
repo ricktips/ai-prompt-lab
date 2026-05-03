@@ -280,7 +280,7 @@
 // ═══════════════════════════════════════════════════════
 //  設定區 — 只需改這一行，貼入 Google 試算表 TSV 發布網址
 // ═══════════════════════════════════════════════════════
-const SHEET_TSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTRPI_Whuvl8KztR5IkhetUH8VoKFgxNG5p31djccmaDFnmej7-yipQFJcvSTJMFY89rRiktRY25yil/pub?output=tsv';
+const SHEET_TSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTRPI_Whuvl8KztR5IkhetUH8VoKFgxNG5p31djccmaDFnmej7-yipQFJcvSTJMFY89rRiktRY25yil/pub?output=csv';
 // ═══════════════════════════════════════════════════════
 
 const SHOW_PRIVATE = false; // 公開版固定 false，請勿修改
@@ -299,18 +299,36 @@ function getColor(cat) {
 }
 
 function parseTSV(raw) {
-    const lines = raw.trim().split('\n');
-    if (lines.length < 2) return [];
-    return lines.slice(1).map(line => {
-        const c = line.split('\t');
-        return {
-            title:    (c[0] || '').trim(),
-            category: (c[1] || '').trim(),
-            scene:    (c[2] || '').trim(),
-            content:  (c[3] || '').trim(),
-            isPublic: (c[4] || '').trim().toUpperCase() === 'Y',
-        };
-    }).filter(p => p.title);
+    // 正確的 CSV parser：處理引號內的換行、逗號、雙引號跳脫
+    const src = raw.replace(/^﻿/, ''); // 移除 BOM
+    const rows = [];
+    let row = [], field = '', inQ = false, i = 0;
+    while (i < src.length) {
+        const c = src[i];
+        if (inQ) {
+            if (c === '"' && src[i + 1] === '"') { field += '"'; i += 2; }
+            else if (c === '"') { inQ = false; i++; }
+            else { field += c; i++; }
+        } else {
+            if (c === '"') { inQ = true; i++; }
+            else if (c === ',') { row.push(field); field = ''; i++; }
+            else if (c === '\r') { i++; }
+            else if (c === '\n') {
+                row.push(field); field = '';
+                if (row.some(f => f !== '')) rows.push(row);
+                row = []; i++;
+            } else { field += c; i++; }
+        }
+    }
+    if (row.length || field) { row.push(field); if (row.some(f => f !== '')) rows.push(row); }
+    if (rows.length < 2) return [];
+    return rows.slice(1).map(c => ({
+        title:    (c[0] || '').trim(),
+        category: (c[1] || '').trim(),
+        scene:    (c[2] || '').trim(),
+        content:  (c[3] || ''),        // 不 trim，保留使用者的換行格式
+        isPublic: (c[4] || '').trim().toUpperCase() === 'Y',
+    })).filter(p => p.title);
 }
 
 function getFiltered() {
