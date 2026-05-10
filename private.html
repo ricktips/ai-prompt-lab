@@ -3,261 +3,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 指令庫 · 私人</title>
+    <title>AI 指令庫 · 私人版</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --green:      #1A3A2A;
-            --green-rim:  #2d5c3e;
-            --cream:      #e8dfc8;
-            --bg:         #F7F5F0;
-            --sidebar-bg: #F0EDE5;
-            --card-bg:    #FFFFFF;
-            --border:     #D9D0BF;
-            --text:       #1C1412;
-            --muted:      #8A7A6A;
-            --subtle:     #A89880;
+            --bg:       #FAFAFA;
+            --fg:       #0F172A;
+            --muted:    #F1F5F9;
+            --muted-fg: #64748B;
+            --accent:   #0052FF;
+            --accent2:  #4D7CFF;
+            --border:   #E2E8F0;
+            --card:     #FFFFFF;
+            --grad:     linear-gradient(135deg, #0052FF, #4D7CFF);
+            --sh-sm:    0 1px 3px rgba(0,0,0,0.06);
+            --sh-md:    0 4px 8px rgba(0,0,0,0.07);
+            --sh-lg:    0 12px 24px rgba(0,0,0,0.09);
+            --sh-acc:   0 4px 14px rgba(0,82,255,0.22);
+            --sh-acc-h: 0 8px 24px rgba(0,82,255,0.32);
         }
 
         html, body { height: 100%; }
 
         body {
-            font-family: 'Noto Sans TC', sans-serif;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
             background: var(--bg);
-            color: var(--text);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+            color: var(--fg);
+            display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
         }
 
+        /* ── TOPBAR — Inverted dark section ──────── */
         .topbar {
             flex-shrink: 0;
-            background: var(--green);
-            padding: 11px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--green-rim);
+            background: var(--fg);
+            padding: 0 24px;
+            height: 52px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: relative; z-index: 10;
+        }
+        .topbar-brand { display: flex; align-items: center; gap: 12px; }
+        .topbar-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            background: var(--grad);
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            box-shadow: var(--sh-acc);
+            flex-shrink: 0;
         }
         .topbar-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 16px;
-            letter-spacing: 2px;
-            color: var(--cream);
-            font-weight: 400;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            font-size: 15px; font-weight: 700;
+            letter-spacing: -0.2px; color: white;
         }
         .topbar-sub {
-            font-size: 9px;
-            letter-spacing: 3px;
-            color: #7aaa8a;
-            text-transform: uppercase;
-            margin-top: 2px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; letter-spacing: 0.15em;
+            color: rgba(255,255,255,0.38);
+            text-transform: uppercase; margin-top: 2px;
+        }
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+        /* Private version badge — amber in dark topbar */
+        .topbar-pvt-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+            color: #EAB308;
+            background: rgba(234,179,8,0.12);
+            border: 1px solid rgba(234,179,8,0.25);
+            padding: 4px 12px; border-radius: 99px;
+        }
+        .pvt-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #EAB308; flex-shrink: 0;
         }
         .topbar-count {
-            font-size: 10px;
-            letter-spacing: 1px;
-            color: #7aaa8a;
+            font-size: 12px; font-weight: 600;
+            color: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.14);
+            padding: 4px 14px; border-radius: 99px;
+            letter-spacing: 0.2px;
         }
 
+        /* ── LAYOUT ──────────────────────────────── */
         .layout { display: flex; flex: 1; overflow: hidden; }
 
+        /* ── SIDEBAR ─────────────────────────────── */
         .sidebar {
-            width: 210px;
-            flex-shrink: 0;
-            background: var(--sidebar-bg);
+            width: 220px; flex-shrink: 0;
+            background: var(--muted);
             border-right: 1px solid var(--border);
-            padding: 24px 14px;
-            display: flex;
-            flex-direction: column;
+            padding: 20px 14px;
+            display: flex; flex-direction: column;
             overflow-y: auto;
         }
         .sidebar-label {
-            font-size: 9px;
-            letter-spacing: 3px;
-            color: var(--subtle);
-            text-transform: uppercase;
-            padding: 0 10px;
-            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; letter-spacing: 0.15em;
+            color: var(--muted-fg); text-transform: uppercase;
+            font-weight: 500;
+            padding: 0 10px; margin-bottom: 8px;
         }
+
+        .search-wrapper { position: relative; margin-bottom: 6px; }
         .sidebar-search {
             width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--border);
-            padding: 7px 10px;
-            font-size: 12px;
-            font-family: 'Noto Sans TC', sans-serif;
-            font-weight: 300;
-            color: var(--text);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 9px 34px 9px 12px;
+            font-size: 13px;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            font-weight: 400; color: var(--fg);
             outline: none;
-            transition: border-color 0.2s;
-            margin-bottom: 8px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-shadow: var(--sh-sm);
         }
-        .sidebar-search:focus { border-bottom-color: var(--green); }
-        .sidebar-search::placeholder { color: #C5B99A; }
+        .sidebar-search:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,82,255,0.1);
+        }
+        .sidebar-search::placeholder { color: #A0AEC0; font-size: 12px; }
+        .search-shortcut {
+            position: absolute; right: 9px; top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            transition: opacity 0.15s;
+        }
+        .sidebar-search:focus + .search-shortcut,
+        .sidebar-search:not(:placeholder-shown) + .search-shortcut { opacity: 0; }
+        kbd {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px; line-height: 1.5;
+            background: var(--muted);
+            border: 1px solid var(--border);
+            border-bottom-width: 2px;
+            border-radius: 4px;
+            padding: 0 5px;
+            color: var(--muted-fg);
+        }
 
         .cat-btn {
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: transparent;
-            border: none;
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; background: transparent; border: none;
             padding: 8px 10px;
-            font-size: 12px;
-            font-family: 'Noto Sans TC', sans-serif;
-            font-weight: 300;
-            color: #6B5D4F;
-            cursor: pointer;
-            border-radius: 2px;
-            letter-spacing: 0.3px;
-            transition: background 0.15s, color 0.15s;
+            font-size: 13px;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            font-weight: 500; color: var(--muted-fg);
+            cursor: pointer; border-radius: 8px;
+            transition: background 0.15s, color 0.15s, box-shadow 0.2s;
+            margin-bottom: 2px;
         }
-        .cat-btn:hover { background: #E5E0D5; color: var(--text); }
-        .cat-btn.active { background: var(--green); color: var(--cream); font-weight: 500; }
+        .cat-btn:hover { background: var(--border); color: var(--fg); }
+        .cat-btn.active {
+            background: var(--grad); color: white;
+            box-shadow: var(--sh-acc);
+        }
+        .cat-count {
+            font-size: 11px; font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            background: rgba(0,82,255,0.08);
+            color: var(--accent);
+            border-radius: 99px;
+            padding: 1px 8px; min-width: 22px; text-align: center;
+        }
+        .cat-btn.active .cat-count { background: rgba(255,255,255,0.2); color: white; }
+        .cat-btn:hover:not(.active) .cat-count { background: rgba(0,82,255,0.1); }
 
-        .sidebar-divider {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 16px 0 12px;
-            margin-top: auto;
-        }
+        .sidebar-divider { border: none; margin-top: auto; padding-top: 8px; }
         .sidebar-count {
-            font-size: 10px;
-            letter-spacing: 1px;
-            color: var(--subtle);
-            padding: 0 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px; letter-spacing: 0.05em;
+            color: var(--muted-fg); padding: 0 10px;
         }
 
-        .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+        /* ── MAIN ────────────────────────────────── */
+        .main { flex: 1; padding: 28px 28px 28px 32px; overflow-y: auto; }
 
         .main-header {
-            display: flex;
-            align-items: baseline;
-            gap: 12px;
+            display: flex; align-items: baseline; gap: 12px;
             margin-bottom: 24px;
-            padding-bottom: 16px;
+            padding-bottom: 18px;
             border-bottom: 1px solid var(--border);
         }
         .main-header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 22px;
-            font-weight: 400;
+            font-family: 'Calistoga', 'Noto Sans TC', Georgia, serif;
+            font-size: 26px; font-weight: 400;
+            letter-spacing: -0.02em; color: var(--fg);
         }
         .main-header-sub {
-            font-size: 11px;
-            letter-spacing: 2px;
-            color: var(--subtle);
-            text-transform: uppercase;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px; letter-spacing: 0.12em;
+            color: var(--muted-fg); text-transform: uppercase;
         }
 
+        /* ── GRID & CARDS ────────────────────────── */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 16px;
         }
-
         .card {
-            background: var(--card-bg);
+            background: var(--card);
             border: 1px solid var(--border);
-            border-top-width: 2px;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            transition: box-shadow 0.2s;
+            border-radius: 12px;
+            padding: 20px 20px 16px;
+            display: flex; flex-direction: column; gap: 8px;
+            box-shadow: var(--sh-sm);
+            transition: box-shadow 0.2s ease-out, transform 0.2s ease-out, border-color 0.2s;
+            position: relative; overflow: hidden;
         }
-        .card:hover { box-shadow: 0 4px 18px rgba(26,58,42,0.09); }
+        .card::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(0,82,255,0.04), transparent 60%);
+            opacity: 0; transition: opacity 0.3s;
+            pointer-events: none; border-radius: inherit;
+        }
+        .card:hover {
+            box-shadow: var(--sh-lg); transform: translateY(-2px);
+            border-color: rgba(0,82,255,0.18);
+        }
+        .card:hover::after { opacity: 1; }
 
         .card-top { display: flex; align-items: center; justify-content: space-between; }
 
+        .cat-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 3px 10px; border-radius: 99px;
+            background: var(--muted); border: 1px solid var(--border);
+        }
+        .cat-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
         .card-cat {
-            font-size: 8px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; letter-spacing: 0.1em;
+            text-transform: uppercase; font-weight: 500; color: var(--muted-fg);
         }
         .private-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #B8860B;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: linear-gradient(135deg, #EAB308, #F59E0B);
+            box-shadow: 0 0 6px rgba(234,179,8,0.4);
             flex-shrink: 0;
         }
         .card-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 22px;
-            font-weight: 400;
-            line-height: 1.3;
-            letter-spacing: -0.2px;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            font-size: 16px; font-weight: 600;
+            line-height: 1.4; letter-spacing: -0.01em; color: var(--fg);
         }
         .card-scene {
-            font-size: 11px;
-            color: var(--muted);
-            line-height: 1.7;
-            font-weight: 300;
-            flex: 1;
+            font-size: 12px; color: var(--muted-fg);
+            line-height: 1.75; font-weight: 400; flex: 1;
         }
+        .card-footer {
+            display: flex; justify-content: flex-end; align-items: center;
+            margin-top: 2px;
+        }
+        .card-chars {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px; color: var(--muted-fg);
+            letter-spacing: 0.03em; opacity: 0.65;
+        }
+
+        /* ── COPY BUTTON ─────────────────────────── */
         .copy-btn {
-            margin-top: 6px;
-            width: 100%;
-            padding: 11px;
-            background: transparent;
-            border: 1px solid;
-            font-size: 11px;
-            letter-spacing: 1px;
+            margin-top: 4px; width: 100%;
+            padding: 10px 16px; min-height: 44px;
+            background: var(--grad); border: none;
+            border-radius: 10px; box-shadow: var(--sh-acc);
+            font-size: 12px; letter-spacing: 0.3px;
             cursor: pointer;
-            font-family: 'Noto Sans TC', sans-serif;
-            font-weight: 400;
-            transition: background 0.2s, color 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            font-weight: 600; color: white;
+            transition: all 0.2s ease-out;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+        }
+        .copy-btn:hover {
+            box-shadow: var(--sh-acc-h);
+            transform: translateY(-1px); filter: brightness(1.06);
+        }
+        .copy-btn:active { transform: scale(0.98); filter: brightness(0.97); }
+        .copy-btn.copied {
+            background: #059669;
+            box-shadow: 0 4px 14px rgba(5,150,105,0.28);
+            transform: translateY(0); filter: none;
+        }
+        .copy-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+        .cat-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        /* ── TOAST ───────────────────────────────── */
+        .toast {
+            position: fixed; top: 18px; right: 20px;
+            background: var(--fg); color: white;
+            padding: 10px 18px; border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px; font-weight: 500;
+            display: flex; align-items: center; gap: 9px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.22);
+            z-index: 9999;
+            transform: translateY(-12px) scale(0.95);
+            opacity: 0; pointer-events: none;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .toast.show { transform: translateY(0) scale(1); opacity: 1; }
+        .toast-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #10B981; flex-shrink: 0;
         }
 
+        /* ── STATE & FOOTER ──────────────────────── */
         .state-msg {
-            grid-column: 1 / -1;
-            padding: 56px 0;
-            text-align: center;
-            font-size: 12px;
-            color: var(--subtle);
-            letter-spacing: 1px;
-            font-weight: 300;
+            grid-column: 1/-1; padding: 56px 0;
+            text-align: center; font-size: 13px;
+            color: var(--muted-fg); letter-spacing: 0.2px;
+        }
+        .footer {
+            flex-shrink: 0; padding: 9px 28px;
+            border-top: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px; letter-spacing: 0.08em;
+            color: var(--muted-fg);
+            display: flex; justify-content: space-between;
+            background: var(--bg);
         }
 
-        .footer {
-            flex-shrink: 0;
-            padding: 10px 32px;
-            border-top: 1px solid var(--border);
-            font-size: 10px;
-            letter-spacing: 1px;
-            color: var(--subtle);
-            display: flex;
-            justify-content: space-between;
-            background: var(--bg);
+        /* ── SCROLLBAR ───────────────────────────── */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+        /* ── MOBILE ──────────────────────────────── */
+        @media (max-width: 640px) {
+            .sidebar { width: 180px; }
+            .main { padding: 18px 16px; }
+            .topbar { padding: 0 16px; }
         }
     </style>
 </head>
 <body>
 
+<div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="toast-dot"></span>
+    已複製至剪貼簿
+</div>
+
 <div class="topbar">
-    <div>
-        <div class="topbar-title">AI 指令庫</div>
-        <div class="topbar-sub">Private Prompt Collection</div>
+    <div class="topbar-brand">
+        <div class="topbar-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"/>
+                <line x1="12" y1="19" x2="20" y2="19"/>
+            </svg>
+        </div>
+        <div>
+            <div class="topbar-title">AI 指令庫</div>
+            <div class="topbar-sub">Prompt Collection</div>
+        </div>
     </div>
-    <div class="topbar-count" id="topCount">—</div>
+    <div class="topbar-right">
+        <div class="topbar-pvt-badge">
+            <span class="pvt-dot"></span>
+            私人版
+        </div>
+        <div class="topbar-count" id="topCount">—</div>
+    </div>
 </div>
 
 <div class="layout">
     <aside class="sidebar">
         <div class="sidebar-label">搜尋</div>
-        <input class="sidebar-search" id="searchInput" placeholder="關鍵字…" autocomplete="off">
-        <div class="sidebar-label" style="margin-top:20px;">分類</div>
+        <div class="search-wrapper">
+            <input class="sidebar-search" id="searchInput" placeholder="關鍵字…" autocomplete="off" aria-label="搜尋指令">
+            <div class="search-shortcut"><kbd>/</kbd></div>
+        </div>
+        <div class="sidebar-label" style="margin-top:18px;">分類</div>
         <div id="catButtons"></div>
         <hr class="sidebar-divider">
         <div class="sidebar-count" id="sideCount">—</div>
@@ -274,18 +400,19 @@
 
 <div class="footer">
     <span>AI 指令庫</span>
+    <span>私人版</span>
 </div>
 
 <script>
 // ═══════════════════════════════════════════════════════
-//  設定區 — 只需改這一行，貼入 Google 試算表 TSV 發布網址
+//  設定區 — 只需改這一行，貼入 Google 試算表 CSV 發布網址
 // ═══════════════════════════════════════════════════════
 const SHEET_TSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTRPI_Whuvl8KztR5IkhetUH8VoKFgxNG5p31djccmaDFnmej7-yipQFJcvSTJMFY89rRiktRY25yil/pub?output=csv';
 // ═══════════════════════════════════════════════════════
 
-const SHOW_PRIVATE = true; // 私人版顯示全部，包含私人筆記
+const SHOW_PRIVATE = true; // 私人版固定 true，請勿修改
 
-const PALETTE = ['#1A3A2A','#7A5C2E','#4A5568','#6B3A3A','#3A4A5A','#5A3A6A'];
+const PALETTE = ['#0052FF','#7C3AED','#DB2777','#EA580C','#16A34A','#0891B2'];
 const catColors = {};
 let allPrompts = [];
 let currentCat = 'all';
@@ -298,9 +425,14 @@ function getColor(cat) {
     return catColors[cat];
 }
 
+function getCount(cat) {
+    const visible = SHOW_PRIVATE ? allPrompts : allPrompts.filter(p => p.isPublic);
+    if (cat === 'all') return visible.length;
+    return visible.filter(p => p.category === cat).length;
+}
+
 function parseTSV(raw) {
-    // 正確的 CSV parser：處理引號內的換行、逗號、雙引號跳脫
-    const src = raw.replace(/^﻿/, ''); // 移除 BOM
+    const src = raw.replace(/^﻿/, '');
     const rows = [];
     let row = [], field = '', inQ = false, i = 0;
     while (i < src.length) {
@@ -326,7 +458,7 @@ function parseTSV(raw) {
         title:    (c[0] || '').trim(),
         category: (c[1] || '').trim(),
         scene:    (c[2] || '').trim(),
-        content:  (c[3] || ''),        // 不 trim，保留使用者的換行格式
+        content:  (c[3] || ''),
         isPublic: (c[4] || '').trim().toUpperCase() === 'Y',
     })).filter(p => p.title);
 }
@@ -343,25 +475,86 @@ function getFiltered() {
     });
 }
 
+function updateHash() {
+    const parts = [];
+    if (currentCat !== 'all') parts.push('cat=' + encodeURIComponent(currentCat));
+    if (searchQ) parts.push('q=' + encodeURIComponent(searchQ));
+    history.replaceState(null, '', parts.length ? '#' + parts.join('&') : location.pathname + location.search);
+}
+
+function parseHash() {
+    const hash = location.hash.slice(1);
+    if (!hash) return;
+    try {
+        const params = Object.fromEntries(
+            hash.split('&').map(p => {
+                const idx = p.indexOf('=');
+                return [decodeURIComponent(p.slice(0, idx)), decodeURIComponent(p.slice(idx + 1))];
+            })
+        );
+        if (params.cat) currentCat = params.cat;
+        if (params.q) { searchQ = params.q; document.getElementById('searchInput').value = params.q; }
+    } catch(e) {}
+}
+
+const toastEl = document.getElementById('toast');
+let toastTimer;
+function showToast() {
+    clearTimeout(toastTimer);
+    toastEl.classList.add('show');
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+}
+
+const searchInput = document.getElementById('searchInput');
+document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement !== searchInput) {
+        e.preventDefault();
+        searchInput.focus(); searchInput.select();
+    }
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+        searchInput.blur();
+    }
+});
+
+let searchTimer;
+searchInput.addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+        searchQ = e.target.value.trim();
+        updateHash();
+        render();
+    }, 150);
+});
+
 function setStateMsg(text) {
     const grid = document.getElementById('grid');
     grid.textContent = '';
     const msg = document.createElement('div');
-    msg.className = 'state-msg';
-    msg.textContent = text;
+    msg.className = 'state-msg'; msg.textContent = text;
     grid.appendChild(msg);
 }
 
 function createCatBtn(label, value) {
     const btn = document.createElement('button');
-    btn.className = 'cat-btn' + (value === 'all' ? ' active' : '');
-    btn.textContent = label;
+    btn.className = 'cat-btn' + (value === currentCat ? ' active' : '');
+
+    const lblEl = document.createElement('span');
+    lblEl.textContent = label;
+
+    const countEl = document.createElement('span');
+    countEl.className = 'cat-count';
+    countEl.textContent = getCount(value);
+
+    btn.appendChild(lblEl);
+    btn.appendChild(countEl);
+
     btn.addEventListener('click', () => {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentCat = value;
         document.getElementById('mainTitle').textContent = value === 'all' ? '全部指令' : label;
         document.getElementById('mainSub').textContent  = value === 'all' ? 'All Prompts' : label;
+        updateHash();
         render();
     });
     return btn;
@@ -371,11 +564,39 @@ function renderCats() {
     const visible = SHOW_PRIVATE ? allPrompts : allPrompts.filter(p => p.isPublic);
     const cats = [...new Set(visible.map(p => p.category).filter(Boolean))];
     cats.forEach(c => getColor(c));
-
     const container = document.getElementById('catButtons');
     container.textContent = '';
     container.appendChild(createCatBtn('全部', 'all'));
     cats.forEach(cat => container.appendChild(createCatBtn(cat, cat)));
+}
+
+function makeCopyIcon() {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('width','13'); svg.setAttribute('height','13');
+    svg.setAttribute('viewBox','0 0 24 24'); svg.setAttribute('fill','none');
+    svg.setAttribute('stroke','currentColor'); svg.setAttribute('stroke-width','1.8');
+    svg.setAttribute('stroke-linecap','round'); svg.setAttribute('stroke-linejoin','round');
+    const clip = document.createElementNS(ns, 'rect');
+    clip.setAttribute('x','9'); clip.setAttribute('y','2');
+    clip.setAttribute('width','6'); clip.setAttribute('height','4'); clip.setAttribute('rx','1');
+    const body = document.createElementNS(ns, 'path');
+    body.setAttribute('d','M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2');
+    svg.appendChild(clip); svg.appendChild(body);
+    return svg;
+}
+
+function makeCheckIcon() {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('width','13'); svg.setAttribute('height','13');
+    svg.setAttribute('viewBox','0 0 24 24'); svg.setAttribute('fill','none');
+    svg.setAttribute('stroke','currentColor'); svg.setAttribute('stroke-width','2.5');
+    svg.setAttribute('stroke-linecap','round'); svg.setAttribute('stroke-linejoin','round');
+    const check = document.createElementNS(ns, 'polyline');
+    check.setAttribute('points','20 6 9 17 4 12');
+    svg.appendChild(check);
+    return svg;
 }
 
 function createCard(p, allIdx) {
@@ -383,100 +604,75 @@ function createCard(p, allIdx) {
 
     const card = document.createElement('div');
     card.className = 'card';
-    card.style.borderTopColor = color;
 
     const top = document.createElement('div');
     top.className = 'card-top';
 
+    const pill = document.createElement('div');
+    pill.className = 'cat-pill';
+
+    const dot = document.createElement('div');
+    dot.className = 'cat-dot';
+    dot.style.background = color;
+
     const catEl = document.createElement('div');
     catEl.className = 'card-cat';
-    catEl.style.color = color;
     catEl.textContent = p.category;
-    top.appendChild(catEl);
+
+    pill.appendChild(dot); pill.appendChild(catEl);
+    top.appendChild(pill);
 
     if (SHOW_PRIVATE && !p.isPublic) {
-        const dot = document.createElement('div');
-        dot.className = 'private-dot';
-        dot.title = '私人';
-        top.appendChild(dot);
+        const privDot = document.createElement('div');
+        privDot.className = 'private-dot'; privDot.title = '私人';
+        top.appendChild(privDot);
     }
 
     const titleEl = document.createElement('div');
-    titleEl.className = 'card-title';
-    titleEl.textContent = p.title;
+    titleEl.className = 'card-title'; titleEl.textContent = p.title;
 
     const sceneEl = document.createElement('div');
-    sceneEl.className = 'card-scene';
-    sceneEl.textContent = p.scene;
+    sceneEl.className = 'card-scene'; sceneEl.textContent = p.scene;
+
+    const charLen = (p.content || '').trim().length;
+    const footerEl = document.createElement('div');
+    footerEl.className = 'card-footer';
+    if (charLen > 0) {
+        const charsEl = document.createElement('span');
+        charsEl.className = 'card-chars';
+        charsEl.textContent = charLen + ' 字';
+        footerEl.appendChild(charsEl);
+    }
 
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
-    btn.style.color = color;
-    btn.style.borderColor = color;
+    btn.setAttribute('aria-label', '複製「' + p.title + '」指令');
 
-    function makeCopyIcon(svgColor) {
-        const ns = 'http://www.w3.org/2000/svg';
-        const svg = document.createElementNS(ns, 'svg');
-        svg.setAttribute('width', '13'); svg.setAttribute('height', '13');
-        svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('fill', 'none');
-        svg.setAttribute('stroke', svgColor); svg.setAttribute('stroke-width', '1.8');
-        svg.setAttribute('stroke-linecap', 'round'); svg.setAttribute('stroke-linejoin', 'round');
-        const clip = document.createElementNS(ns, 'rect');
-        clip.setAttribute('x','9'); clip.setAttribute('y','2');
-        clip.setAttribute('width','6'); clip.setAttribute('height','4'); clip.setAttribute('rx','1');
-        const body = document.createElementNS(ns, 'path');
-        body.setAttribute('d','M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2');
-        svg.appendChild(clip); svg.appendChild(body);
-        return svg;
-    }
-
-    function setBtnState(copied) {
+    function updateBtn(copied) {
         btn.textContent = '';
-        btn.appendChild(makeCopyIcon(copied ? '#e8dfc8' : color));
+        btn.appendChild(copied ? makeCheckIcon() : makeCopyIcon());
         const lbl = document.createElement('span');
         lbl.textContent = copied ? '已複製' : '複製指令';
         btn.appendChild(lbl);
-        btn.style.background = copied ? color : 'transparent';
-        btn.style.color = copied ? '#e8dfc8' : color;
-        btn.style.borderColor = color;
     }
-    setBtnState(false);
+    updateBtn(false);
 
-    btn.addEventListener('mouseenter', () => {
-        if (!btn.classList.contains('copied')) {
-            btn.textContent = '';
-            btn.appendChild(makeCopyIcon('#e8dfc8'));
-            const lbl = document.createElement('span');
-            lbl.textContent = '複製指令';
-            btn.appendChild(lbl);
-            btn.style.background = color;
-            btn.style.color = '#e8dfc8';
-        }
-    });
-    btn.addEventListener('mouseleave', () => {
-        if (!btn.classList.contains('copied')) setBtnState(false);
-    });
     btn.addEventListener('click', () => {
         const content = allPrompts[allIdx]?.content || '';
         const markCopied = () => {
             btn.classList.add('copied');
-            setBtnState(true);
-            setTimeout(() => {
-                btn.classList.remove('copied');
-                setBtnState(false);
-            }, 2000);
+            updateBtn(true);
+            showToast();
+            setTimeout(() => { btn.classList.remove('copied'); updateBtn(false); }, 2000);
         };
-        if (navigator.clipboard && navigator.clipboard.writeText) {
+        if (navigator.clipboard?.writeText) {
             navigator.clipboard.writeText(content).then(markCopied).catch(fallbackCopy);
-        } else {
-            fallbackCopy();
-        }
+        } else { fallbackCopy(); }
         function fallbackCopy() {
             const el = document.createElement('textarea');
             el.value = content;
             el.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
-            document.body.appendChild(el);
-            el.select();
+            document.body.appendChild(el); el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
             markCopied();
@@ -486,6 +682,7 @@ function createCard(p, allIdx) {
     card.appendChild(top);
     card.appendChild(titleEl);
     card.appendChild(sceneEl);
+    card.appendChild(footerEl);
     card.appendChild(btn);
     return card;
 }
@@ -498,33 +695,26 @@ function render() {
 
     const grid = document.getElementById('grid');
     grid.textContent = '';
-
-    if (!items.length) {
-        setStateMsg('找不到符合條件的指令');
-        return;
-    }
+    if (!items.length) { setStateMsg('找不到符合條件的指令'); return; }
 
     const frag = document.createDocumentFragment();
-    items.forEach(p => {
-        frag.appendChild(createCard(p, allPrompts.indexOf(p)));
-    });
+    items.forEach(p => frag.appendChild(createCard(p, allPrompts.indexOf(p))));
     grid.appendChild(frag);
 }
-
-document.getElementById('searchInput').addEventListener('input', e => {
-    searchQ = e.target.value.trim();
-    render();
-});
 
 async function init() {
     setStateMsg('資料載入中，請稍候…');
     try {
         const res = await fetch(SHEET_TSV_URL);
         if (!res.ok) throw new Error('fetch failed');
-        const text = await res.text();
-        allPrompts = parseTSV(text);
+        allPrompts = parseTSV(await res.text());
+        parseHash();
         renderCats();
         render();
+        if (currentCat !== 'all') {
+            document.getElementById('mainTitle').textContent = currentCat;
+            document.getElementById('mainSub').textContent = currentCat;
+        }
     } catch (_) {
         setStateMsg('資料載入失敗。請確認 Google 試算表已正確發布，再重新整理頁面。');
         document.getElementById('topCount').textContent = '—';
